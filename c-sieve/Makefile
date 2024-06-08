@@ -21,3 +21,4 @@ view_long.o: view_long.c
 
 clean:
 		rm -f sieve view_long *.o
+
