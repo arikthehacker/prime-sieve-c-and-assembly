@@ -1,0 +1,16 @@
+# Canonical SHA-256 of the uncompressed prime lists (one prime per line,
+# ascending). Verify the committed samples with ./regenerate.sh
+#
+# Committed gzipped samples in samples/ , N = 10 .. 10,000,000:
+0140f5a3224bb47eba1eedb4d5f337fe7e303084217296315c1efb8640185d00  primes_10.txt
+eae22b187981dd7933662f75b1bc3136823dc0cb336b43dc68b93c6ef56eee80  primes_100.txt
+aa428032844a94a07a8a0f266417eb79f33f50def258fc5db055ad9db4f0a3c2  primes_1000.txt
+63743e3fc3eb033e1a65d4960512b4a3f390e728a40f71c5e6717da80a0ca399  primes_10000.txt
+1a28c561220df1810d0af926c3a77353575c5dfc4ffb2277087c08fad183292e  primes_100000.txt
+45014844a650552b32e1a3bfa819de5ca809838266a432d28caabc6b72de86cf  primes_1000000.txt
+0ca76ebab5278ea6a4d5f94de70adab798dc7c7fc59e9adf83964adfd884b483  primes_10000000.txt
+#
+# Large outputs, attached as GitHub release assets (not committed):
+6ce000fe78326df1157bbca420fbfef0b92ed060998a08a1542535b4c69d7154  primes_100000000.txt
+e9d65c7b01ff79e07677d27cc02a14b746cca3c7cd7e57bd8d2aee5255273c4c  primes_1000000000.txt
+1ffc7969bcb9047dd440101a28c404af245916cb266a9866b2cd59afe1ef48c3  primes_2000000000.txt

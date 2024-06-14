@@ -1,22 +1,14 @@
-==1138476== Memcheck, a memory error detector
-==1138476== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==1138476== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
-==1138476== Command: ./sieve_asm
-==1138476== 
-==1138476== Invalid read of size 1
-==1138476==    at 0x804929D: ??? (sieve_asm.asm:130)
-==1138476==    by 0x40A4518: (below main) (libc_start_call_main.h:58)
-==1138476==  Address 0x42ba470 is 0 bytes after a block of size 1,000 alloc'd
-==1138476==    at 0x40436A0: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-x86-linux.so)
-==1138476==    by 0x804920F: ??? (sieve_asm.asm:65)
-==1138476==    by 0x40A4518: (below main) (libc_start_call_main.h:58)
-==1138476== 
-==1138476== 
-==1138476== HEAP SUMMARY:
-==1138476==     in use at exit: 0 bytes in 0 blocks
-==1138476==   total heap usage: 3 allocs, 3 frees, 9,192 bytes allocated
-==1138476== 
-==1138476== All heap blocks were freed -- no leaks are possible
-==1138476== 
-==1138476== For lists of detected and suppressed errors, rerun with: -s
-==1138476== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+==2166281== Memcheck, a memory error detector
+==2166281== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==2166281== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==2166281== Command: ./sieve_asm
+==2166281== 
+==2166281== 
+==2166281== HEAP SUMMARY:
+==2166281==     in use at exit: 0 bytes in 0 blocks
+==2166281==   total heap usage: 3 allocs, 3 frees, 9,192 bytes allocated
+==2166281== 
+==2166281== All heap blocks were freed -- no leaks are possible
+==2166281== 
+==2166281== For lists of detected and suppressed errors, rerun with: -s
+==2166281== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

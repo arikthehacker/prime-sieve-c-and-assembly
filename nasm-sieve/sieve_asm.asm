@@ -1,5 +1,3 @@
-;; Ariella Marchuk   ||||   amarchuk@pdx.edu
-
 %define MARKED_FLAG 0x01                 ; flag to mark prime numbers
 %define UNMARKED_FLAG 0x00               ; flag for unmarked numbers
 %define LIMIT_TWO_BILLION 2000000000     ; upper limit for input validation
@@ -11,10 +9,10 @@ extern free                              ; c function for freeing memory
 
 global main                              ; entry point for the program
 
-section .data                            ; data section, initialized variables 
+section .data                            ; data section, initialized variables
+    prime_num:      dd 2                 ; initial prime number
     iterator:       dd 1
     primes_array:   dd 0x0               ; pointer to the array of primes
-    prime_num:      dd 2
 
 section .rodata                          ; read-only data section
     fmt_print:      db 10, "%d", 0       ; format for printing numbers
@@ -29,7 +27,7 @@ section .bss                             ; BSS, uninitialized variables
 
 section .text                            ; code section
 
-main:
+main:                                  
         push    ebp                      ; set up stack frame
         mov     ebp, esp
 
@@ -38,123 +36,135 @@ get_upper_bound:
         push dword prompt_msg            ; push message to prompt for input
         call printf
         add esp, 4                       ; clean da stack
-
-get_input:
         push dword ub_limit
         push dword fmt_input             ; push format string for input
         call scanf                       ; call scanf to read user input
         add esp, 8                       ; clean da stack
-
         mov eax, [ub_limit]
         cmp eax, 10                      ; compare input with lower bound
-        jl print_invalid_ub              ; if input < 10, print error
-        cmp eax, LIMIT_TWO_BILLION       ; compare input with upper limit
-        jg print_invalid_ub              ; if input > upper limit, print error
-        jmp allocate_memory              
+        jl handle_invalid_ub             ; input < 10 then jump
+        cmp eax, LIMIT_TWO_BILLION       ; comparison(input)->upper limit
+        jg handle_invalid_ub
+        jmp allocate_memory
 
-print_invalid_ub:
-        push dword error_ub             
-        call printf                      ; call printf to display error message
+; --- handle invalid upper bound input ---
+handle_invalid_ub:
+        push dword error_ub              ; err pushed
+        call printf                      ; call printf to display err
         add esp, 4                       ; clean da stack
-        jmp exit_program                 ; exit program if invalid
+        jmp get_upper_bound
 
 ; --- allocate memory for prime numbers ---
-allocate_memory:
-    mov eax, [ub_limit]
-    push eax
-    call malloc
-    test eax, eax                    ; malloc ok?
-    jz handle_memory_fail
-    mov [primes_array], eax
-    add esp, 4                       ; clean da stack
-    mov edi, [primes_array]          ; move pointer to edi
+; primes_array = malloc([ub_limit]); 
+; if (primes_array == NULL)
+; {
+;   printf("Memory allocation failed. Exiting program.");
+;   goto exit_program;
+; }
 
-    mov ecx, [ub_limit]              ; move upper bound to ecx
-    xor eax, eax                     ; clear eax (to use as zero index)
-    jmp initialize_array             ; jump to array initialization
+allocate_memory:
+        mov eax, [ub_limit]
+        push eax
+        call malloc
+        test eax, eax                    ; malloc ok?
+        jz handle_memory_fail
+        mov [primes_array], eax
+        add esp, 4                       ; clean da stack
+        mov edi, eax                     ; move pointer to edi
+        mov ecx, [ub_limit]              ; move ub to ecx
+        dec ecx
+        jmp init_array                   ; jump to init
 
 ; --- handle memory allocation failure ---
 handle_memory_fail:
-    push dword error_alloc           ; push error message
-    call printf
-    add esp, 4
-    jmp exit_program
+        push dword error_alloc           ; push err
+        call printf
+        add esp, 4
+        jmp exit_program
 
 ; --- initialize the prime number array ---
-initialize_array:
-.init_loop:
-    mov byte [edi + eax], 1          ; set each element to 1
-    inc eax                          ; increment index
-    dec ecx                          ; decrement counter
-    jnz .init_loop                   ; loop until ecx is zero
+init_array:
+        mov byte [edi + ecx], 1          ; initialize array element to 1
+        loop init_array
+        mov byte [edi + ecx], 1
 
-; --- sieve of eratos!!! ---
+; --- start sieve of eratosthenes algorithm ---
 sieve_primes:
-    xor eax, eax                      ; clear eax
-    mov ecx, 2                        ; start with the first prime number
-    mov ebx, [ub_limit]               ; upper bound in ebx
+        xor eax, eax
+        mov ecx, 2
+        mov ebx, [ub_limit]
+        jmp outer_loop
 
+next_prime:
+        inc ecx                          ; increment counter!!!!
+
+; --- outer loop for sieving primes ---
 outer_loop:
-    mov eax, ecx
-    imul eax, ecx                     ; square the counter ecx
-    cmp eax, ebx                      ; compare eax with upper bound
-    jge prepare_print                 ; if squared value exceeds upper bound, prepare to print
-    cmp byte [edi + ecx], UNMARKED_FLAG ; check if number is unmarked
-    je increment_prime                ; if unmarked, go to next prime
-    mov edx, ecx
-    add edx, ecx                      ; double the counter
+        mov eax, ecx
+        imul eax, eax                    ; square the counter!!!
+        cmp eax, ebx                     ; compare with ub
+        jge prepare_print
+        cmp byte [edi + ecx], UNMARKED_FLAG
+        je next_prime
+        mov edx, ecx
+        imul edx, 2                      ; double the counter
 
+; --- inner loop for marking non-primes ---
 inner_loop:
-    cmp edx, ebx                      ; compare edx with upper bound
-    jge increment_prime               ; if edx exceeds upper bound, go to next prime
-    mov byte [edi + edx], 0           ; mark multiple as non-prime
-    add edx, ecx                      ; move to next multiple
-    jmp inner_loop                  
-
-increment_prime:
-    inc ecx                           ; increment counter
-    jmp outer_loop                 
+        cmp edx, ebx                     ; compare multiple with ub
+        jge next_prime
+        mov byte [edi + edx], 0
+        add edx, ecx
+        jmp inner_loop
+        inc ecx
 
 prepare_print:
-    mov ecx, 2                        ; start printing primes from 2
-    jmp print_primes                  ; jump to print primes
+        mov ecx, 2
+        jmp print_loop                   ; jump to print loop
 
-; --- print those primes!!! ---
-print_primes:
-    mov ecx, 2                        ; start from the first prime number
-    mov ebx, [ub_limit]               ; upper bound in ebx
+;;printf("%d\n", ecx);
+
+print_prime:
+        push dword ecx
+        push ecx
+        push dword fmt_print             ; push format string
+        call printf
+        add esp, 8                       ; clean up the stack
+        pop ecx                          ; restore counter
+        inc ecx
+        cmp ebx, ecx
+        jg print_loop                    ; continue printing if within bound
+
+; --- loop to print primes ---
+; for (int exc = 2; ecx <= [ub_limit]; exc++)
+; {
+;   if (primes_array[ecx] == 1) 
+;   {
+;       printf("%d\n", ecx);
+;   } 
+; }
 
 print_loop:
-    cmp ecx, ebx                      ; compare ecx with upper bound
-    jg exit_program                   ; if ecx > upper bound, exit
-    cmp byte [edi + ecx], MARKED_FLAG ; check if number is marked as prime
-    jne increment_and_continue        ; if not marked, skip to next
-
-    push dword ecx
-    push ecx
-    push dword fmt_print              ; push format string
-    call printf
-    add esp, 8                        ; clean up the stack
-    pop ecx                           ; restore counter
-
-increment_and_continue:
-    inc ecx                           ; increment counter
-    jmp print_loop                    ; repeat loop
+        cmp byte [edi + ecx], MARKED_FLAG ; check if number is marked
+        je print_prime
+        inc ecx
+        cmp ebx, ecx
+        jg print_loop
+        jmp exit_program
 
 ; --- clean up and exit ---
+; free(primes_array);
+; return 0 
+
 exit_program:
-    push dword fmt_newline           
-    call printf                       
-    add esp, 4                        ; clean up stack
-    mov eax, [primes_array]         
-    test eax, eax                     ; check if the address is not NULL
-    jz .skip_free                     ; if NULL, skip the free call
-    push eax                          ; push allocated memory address
-    call free                         ; free allocated memory
-    add esp, 4                        ; clean up stack
-.skip_free:
-    mov esp, ebp                   
-    pop ebp                       
-    xor eax, eax                      ; set return value to 0
-    ret                               ; return from main
+        push dword fmt_newline           ; push newline format
+        call printf                      ; call printf to print newline
+        add esp, 4
+        push dword [primes_array]        ; push allocated memory address
+        call free
+        add esp, 4
+        mov esp, ebp                     ; restore stack pointer
+        pop ebp                          ; restore base pointer
+        mov eax, 0                       ; set return value to 0
+        ret                              ; return from main
 

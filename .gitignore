@@ -1,0 +1,25 @@
+# build output
+*.o
+*.exe
+a.out
+core
+c-sieve/sieve
+c-sieve/view_long
+nasm-sieve/sieve_asm
+
+# editor / swap
+*~
+*.swp
+*.swo
+.\#*
+\#*\#
+
+# regenerated prime outputs (the gzipped files in samples/ are committed)
+/primes_*.txt
+/primes_*.bin
+/big_*.txt
+
+# os / ide
+.DS_Store
+.vscode/
+.idea/
